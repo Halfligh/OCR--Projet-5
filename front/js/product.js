@@ -54,3 +54,46 @@ fetch(`http://localhost:3000/api/products/${productId}`)
   .catch(error => {
     console.error('Une erreur s\'est produite :', error);
   });
+
+
+  //Création d'un tableau vide dans le LocalStorage si il n'y pas déjà un panier
+  if (!localStorage.getItem('cart')) {
+    localStorage.setItem('cart', '[]');
+  }
+
+  function addToCart() {
+    
+    const cart = JSON.parse(localStorage.getItem('cart'));
+    const newItem = {
+        id: productId,
+        color: 'votre-couleur',
+        quantity: 1 // ou la quantité que vous souhaitez ajouter
+        };
+    cart.push(newItem);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(JSON.stringify(cart));
+  }
+    
+ //Continuer à partir d'ici : Étape 7 du guide : Ajout panier fonctionnel à compléter
+
+  // Récupération des données du LocalStorage
+let cartItems = JSON.parse(localStorage.getItem('cart'));
+
+// Récupération de la section Cart
+let cartSection = document.querySelector('.cart__items');
+
+// Parcours des articles du panier
+if(cartItems){
+    cartItems.forEach(item => {
+      // Création des éléments HTML pour chaque article
+      let article = document.createElement('article');
+      article.classList.add('cart__item');
+      article.setAttribute('data-id', item.id);
+      article.setAttribute('data-color', item.color);
+  
+      // Ajout de l'article à la section Cart
+      cartSection.appendChild(article);
+    });
+  }
+
+  
