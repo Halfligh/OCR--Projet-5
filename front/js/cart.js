@@ -37,7 +37,7 @@ cart.forEach(item => {
       descDiv.appendChild(p1);
 
       const p2 = document.createElement('p');
-      p2.textContent = `${productData.price / 100} €`;
+      p2.textContent = `${productData.price} €`;
       descDiv.appendChild(p2);
 
       const settingsDiv = document.createElement('div');
