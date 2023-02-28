@@ -159,3 +159,116 @@ async function updateTotalPrice() {
   totalQuantityElement.textContent = totalQuantity;
   totalPriceElement.textContent = totalPrice.toFixed(2) + ' €';
 }
+
+const form = document.querySelector('.cart__order__form');
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault(); // Empêche le formulaire de s'envoyer de manière classique
+
+  // Récupération des valeurs des champs de formulaire
+  const firstName = document.getElementById('firstName').value;
+  const lastName = document.getElementById('lastName').value;
+  const address = document.getElementById('address').value;
+  const city = document.getElementById('city').value;
+  const email = document.getElementById('email').value;
+
+  // Vérification des valeurs des champs de formulaire
+  const firstNameRegex = /^[a-zA-Z]+$/;
+  const lastNameRegex = /^[a-zA-Z]+$/;
+  const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
+  const cityRegex = /^[a-zA-Z\s]*$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  let errorMsg = '';
+  if (!firstNameRegex.test(firstName)) {
+    errorMsg += 'Le prénom doit contenir uniquement des lettres.\n';
+  }
+  if (!lastNameRegex.test(lastName)) {
+    errorMsg += 'Le nom doit contenir uniquement des lettres.\n';
+  }
+  if (!addressRegex.test(address)) {
+    errorMsg += 'L\'adresse doit contenir uniquement des lettres, des chiffres, des espaces, des apostrophes, des virgules et des tirets.\n';
+  }
+  if (!cityRegex.test(city)) {
+    errorMsg += 'La ville doit contenir uniquement des lettres et des espaces.\n';
+  }
+  if (!emailRegex.test(email)) {
+    errorMsg += 'L\'adresse email doit être valide.\n';
+  }
+
+  if (errorMsg !== '') {
+    alert('Le formulaire contient des erreurs :\n' + errorMsg);
+    return;
+  }
+
+  //WIP requête POST à l'api et redirection vers page confirmation 
+  //+ Affichage id de la commande sur la page confirmation
+
+
+  // Envoi des données en requête POST à l'API
+  const data = {
+    firstName: firstName,
+    lastName: lastName,
+    address: address,
+    city: city,
+    email: email,
+    products: cart.map(item => item.id),
+  };
+
+  fetch('http://localhost:3000/api/cameras/order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(response => response.json())
+    .then(order => {
+      localStorage.removeItem('cart');
+    })
+    .catch(error => console.error(error));
+});
+
+async function submitOrder(event) {
+  event.preventDefault();
+
+  async function submitOrder(event) {
+    event.preventDefault();
+  
+    // Récupération des données du formulaire
+    const contact = {
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      address: document.getElementById('address').value,
+      city: document.getElementById('city').value,
+      email: document.getElementById('email').value,
+    };
+  
+    const products = JSON.parse(localStorage.getItem('cart')).map(item => item.id);
+  
+    // Envoi de la requête POST
+    const response = await fetch('http://localhost:3000/api/products/order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contact,
+        products,
+      }),
+    });
+  
+    // Vérification de la réponse de l'API
+    if (!response.ok) {
+      throw new Error('Une erreur est survenue lors de la commande.');
+    }
+  
+    // Récupération de la réponse de l'API
+    const data = await response.json();
+  
+    // Suppression du panier dans le local storage
+    localStorage.removeItem('cart');
+  
+    // Redirection vers la page de confirmation
+    window.location.replace('confirmation.html');
+  }}
+
+  
