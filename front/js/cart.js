@@ -103,7 +103,6 @@ cart.forEach(item => {
         article.remove();
         updateTotalPrice(cart);
       });
-      
 
       // Ajouter tous les éléments créés à la section du panier
       settingsDiv.appendChild(quantityDiv);
@@ -116,6 +115,7 @@ cart.forEach(item => {
     })
     .catch(error => console.log(error));
 });
+
 
 // Récupération des éléments DOM pour les spans
 const totalQuantityElement = document.getElementById('totalQuantity');
@@ -144,7 +144,6 @@ async function getTotalPrice(cart) {
 // Appel de la fonction pour calculer le prix total
 getTotalPrice(cart);
 
-
 async function updateTotalPrice() {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
   let totalPrice = 0;
@@ -165,7 +164,8 @@ const form = document.querySelector('.cart__order__form');
 form.addEventListener('submit', function(event) {
   event.preventDefault(); // Empêche le formulaire de s'envoyer de manière classique
 
-  // Récupération des valeurs des champs de formulaire
+  // Récupération des valeurs des champs de formulaire pour vérification
+  
   const firstName = document.getElementById('firstName').value;
   const lastName = document.getElementById('lastName').value;
   const address = document.getElementById('address').value;
@@ -173,6 +173,7 @@ form.addEventListener('submit', function(event) {
   const email = document.getElementById('email').value;
 
   // Vérification des valeurs des champs de formulaire
+  
   const firstNameRegex = /^[a-zA-Z]+$/;
   const lastNameRegex = /^[a-zA-Z]+$/;
   const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
@@ -200,75 +201,47 @@ form.addEventListener('submit', function(event) {
     alert('Le formulaire contient des erreurs :\n' + errorMsg);
     return;
   }
-
-  //WIP requête POST à l'api et redirection vers page confirmation 
-  //+ Affichage id de la commande sur la page confirmation
-
-
-  // Envoi des données en requête POST à l'API
-  const data = {
-    firstName: firstName,
-    lastName: lastName,
-    address: address,
-    city: city,
-    email: email,
-    products: cart.map(item => item.id),
-  };
-
-  fetch('http://localhost:3000/api/cameras/order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-    .then(response => response.json())
-    .then(order => {
-      localStorage.removeItem('cart');
-    })
-    .catch(error => console.error(error));
 });
+const orderForm = document.querySelector('.cart__order__form');
 
-async function submitOrder(event) {
+orderForm.addEventListener('submit', function(event) {
   event.preventDefault();
 
-  async function submitOrder(event) {
-    event.preventDefault();
-  
-    // Récupération des données du formulaire
-    const contact = {
-      firstName: document.getElementById('firstName').value,
-      lastName: document.getElementById('lastName').value,
-      address: document.getElementById('address').value,
-      city: document.getElementById('city').value,
-      email: document.getElementById('email').value,
-    };
-  
-    const products = JSON.parse(localStorage.getItem('cart')).map(item => item.id);
-  
-    // Envoi de la requête POST
-    const response = await fetch('http://localhost:3000/api/products/order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contact,
-        products,
-      }),
-    });
-  
-    // Vérification de la réponse de l'API
-    if (!response.ok) {
-      throw new Error('Une erreur est survenue lors de la commande.');
-    }
-  
-    // Récupération de la réponse de l'API
-    const data = await response.json();
-  
-    // Suppression du panier dans le local storage
-    localStorage.removeItem('cart');
-  
-    // Redirection vers la page de confirmation
-    window.location.replace('confirmation.html');
-  }}
+  // Récupération des objets contact et de la liste de produits 
+  const contact = {
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    address: document.getElementById('address').value,
+    city: document.getElementById('city').value,
+    email: document.getElementById('email').value,
+  };
 
-  
+  const products = JSON.parse(localStorage.getItem('cart')).reduce((acc, item) => {
+    acc.push(item.id);
+    return acc;
+  }, []);
+
+  // Définition des données à envoyer
+  const data = JSON.stringify({ contact: contact, products: products });
+
+  // Définition des options de la requête
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: data
+  };
+
+  // Envoi de la requête
+  fetch('http://localhost:3000/api/products/order', options)
+    .then(response => response.json())
+    .then(data => {
+      alert(`Données de contact : ${JSON.stringify(data.contact)}, produits : ${JSON.stringify(data.products)}, numéro de commande: ${JSON.stringify(data.orderId)}`);
+      window.location.replace(`confirmation.html?id=${data.orderId}`);
+    })
+    .catch(error => {
+      console.log(error);
+      alert("Une erreur est survenue lors de la requête");
+    });
+});
