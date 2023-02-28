@@ -237,7 +237,6 @@ orderForm.addEventListener('submit', function(event) {
   fetch('http://localhost:3000/api/products/order', options)
     .then(response => response.json())
     .then(data => {
-      alert(`Données de contact : ${JSON.stringify(data.contact)}, produits : ${JSON.stringify(data.products)}, numéro de commande: ${JSON.stringify(data.orderId)}`);
       window.location.replace(`confirmation.html?id=${data.orderId}`);
     })
     .catch(error => {
