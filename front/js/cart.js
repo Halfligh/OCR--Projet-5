@@ -59,6 +59,26 @@ cart.forEach(item => {
       input.setAttribute('value', item.quantity);
       quantityDiv.appendChild(input);
 
+      //Ajout de l'EventListener pour mettre à jour la quantité
+      input.addEventListener('change', function(event) {
+        const newQuantity = parseInt(event.target.value);
+        if (newQuantity <= 0) {
+          return;
+        }
+        const article = event.target.closest('.cart__item');
+        const itemId = article.dataset.id;
+        const itemColor = article.dataset.color;
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        for (let i = 0; i < cart.length; i++) {
+          if (cart[i].id === itemId && cart[i].color === itemColor) {
+            cart[i].quantity = newQuantity;
+            break;
+          }
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateTotalPrice(cart);
+      });
+
       const deleteDiv = document.createElement('div');
       deleteDiv.classList.add('cart__item__content__settings__delete');
 
@@ -66,6 +86,24 @@ cart.forEach(item => {
       deleteP.classList.add('deleteItem');
       deleteP.textContent = 'Supprimer';
       deleteDiv.appendChild(deleteP);
+
+      //Ajout de l'événement d'écoute pour la suppresion 
+      deleteP.addEventListener('click', function(event) {
+        const article = event.target.closest('.cart__item');
+        const productId = article.dataset.id;
+        const productColor = article.dataset.color;
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        for (let i = 0; i < cart.length; i++) {
+          if (cart[i].id === productId && cart[i].color === productColor) {
+            cart.splice(i, 1);
+            break;
+          }
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        article.remove();
+        updateTotalPrice(cart);
+      });
+      
 
       // Ajouter tous les éléments créés à la section du panier
       settingsDiv.appendChild(quantityDiv);
@@ -78,3 +116,46 @@ cart.forEach(item => {
     })
     .catch(error => console.log(error));
 });
+
+// Récupération des éléments DOM pour les spans
+const totalQuantityElement = document.getElementById('totalQuantity');
+const totalPriceElement = document.getElementById('totalPrice');
+
+// Fonction qui calcule le prix total pour chaque produit dans le panier
+async function getTotalPrice(cart) {
+  let totalPrice = 0;
+
+  // Boucle sur chaque produit dans le panier
+  for (const item of cart) {
+    // Appel fetch pour récupérer les informations du produit à partir de son ID
+    const response = await fetch(`http://localhost:3000/api/products/${item.id}`);
+    const product = await response.json();
+    
+    // Ajout du prix du produit au prix total, en tenant compte de sa quantité
+    totalPrice += parseFloat(product.price) * parseInt(item.quantity);
+  }
+
+  // Mise à jour des spans avec les valeurs calculées
+  const totalQuantity = cart.reduce((acc, item) => acc + parseInt(item.quantity), 0);
+  totalQuantityElement.textContent = totalQuantity;
+  totalPriceElement.textContent = totalPrice.toFixed(2) + ' €';
+}
+
+// Appel de la fonction pour calculer le prix total
+getTotalPrice(cart);
+
+
+async function updateTotalPrice() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  let totalPrice = 0;
+
+  for (const item of cart) {
+    const response = await fetch(`http://localhost:3000/api/products/${item.id}`);
+    const product = await response.json();
+    totalPrice += parseFloat(product.price) * parseInt(item.quantity);
+  }
+
+  const totalQuantity = cart.reduce((acc, item) => acc + parseInt(item.quantity), 0);
+  totalQuantityElement.textContent = totalQuantity;
+  totalPriceElement.textContent = totalPrice.toFixed(2) + ' €';
+}

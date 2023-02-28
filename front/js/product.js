@@ -73,7 +73,6 @@ fetch(`http://localhost:3000/api/products/${productId}`)
 
   //Récupération de la quantité séléctionnée par l'utilisateur
   const quantityElement = document.getElementById('quantity');
- 
 
   function addToCart(color, quantity) {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -81,13 +80,17 @@ fetch(`http://localhost:3000/api/products/${productId}`)
   
     // Parcourir le tableau cart pour vérifier si le produit est déjà présent
     for (let i = 0; i < cart.length; i++) {
-      if (cart[i].id === productId && cart[i].color === color) {
-        cart[i].quantity += quantity;
+      if (cart[i].id === productId && cart[i].color === colorElement.value) {
+        cart[i].quantity = parseInt(cart[i].quantity) + parseInt(quantityElement.value);
         found = true;
         break;
       }
     }
   
+    //S'assurer que la quantitée est supérieure à 0 avant de push le produit
+
+    if (parseInt(quantityElement.value) > 0) {
+
     // Si le produit n'a pas été trouvé, l'ajouter au panier
     if (!found) {
       const newItem = {
@@ -97,8 +100,6 @@ fetch(`http://localhost:3000/api/products/${productId}`)
       };
       cart.push(newItem);
     }
-  
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(JSON.stringify(cart));
   }
-  
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
