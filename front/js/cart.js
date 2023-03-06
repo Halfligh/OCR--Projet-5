@@ -196,11 +196,19 @@ async function updateTotalPrice() {
   totalPriceElement.textContent = totalPrice.toFixed(2);
 }
 
-// Gestion de l'envoi du formulaire
 
-const form = document.querySelector('.cart__order__form');
+// Déclaration de la fonction qui permettra de vérifier le formulaire onBlur et onChange via les regex
+function validateInput(inputElement, regex, errorMsgElement) {
+  if (!regex.test(inputElement.value)) {
+    errorMsgElement.textContent = `Le champ doit respecter le format suivant : ${regex}`;
+    return false;
+  } else {
+    errorMsgElement.textContent = '';
+    return true;
+  }
+}
 
-let isCorrect = true;
+//Déclaration des variables et regex pour la vérification du formulaire 
 
 // Récupération des champs de formulaire
 const firstName = document.getElementById('firstName');
@@ -223,71 +231,59 @@ const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
 const cityRegex = /^[a-zA-Z\s]*$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Fonction de validation du champ "prénom"
+// Validation en temps réél des champs de formulaire - onBlur
+
 firstName.addEventListener('blur', function() {
-  if (!firstNameRegex.test(firstName.value)) {
-    firstNameErrorMsg.textContent = 'Le prénom doit contenir uniquement des lettres.';
-    isCorrect = false;
-  } else {
-    firstNameErrorMsg.textContent = '';
-    isCorrect = true;
-  }
+  validateInput(firstName, firstNameRegex, firstNameErrorMsg);
 });
 
-// Fonction de validation du champ "nom"
 lastName.addEventListener('blur', function() {
-  if (!lastNameRegex.test(lastName.value)) {
-    lastNameErrorMsg.textContent = 'Le nom doit contenir uniquement des lettres.';
-    isCorrect = false;
-  } else {
-    lastNameErrorMsg.textContent = '';
-    isCorrect = true;
-  }
+  validateInput(lastName, lastNameRegex, lastNameErrorMsg)
 });
 
-// Fonction de validation du champ "adresse"
 address.addEventListener('blur', function() {
-  if (!addressRegex.test(address.value)) {
-    addressErrorMsg.textContent = 'L\'adresse doit contenir uniquement des lettres, des chiffres, des espaces, des apostrophes, des virgules et des tirets.';
-    isCorrect = false;
-  } else {
-    addressErrorMsg.textContent = '';
-    isCorrect = true;
-  }
+  validateInput(address, addressRegex, addressErrorMsg )
 });
 
-// Fonction de validation du champ "ville"
 city.addEventListener('blur', function() {
-  if (!cityRegex.test(city.value)) {
-    cityErrorMsg.textContent = 'La ville doit contenir uniquement des lettres et des espaces.';
-    isCorrect = false;
-  } else {
-    cityErrorMsg.textContent = '';
-    isCorrect = true;
-  }
+  validateInput(city, cityRegex, cityErrorMsg )
 });
 
-// Fonction de validation du champ "email"
 email.addEventListener('blur', function() {
-  if (!emailRegex.test(email.value)) {
-    emailErrorMsg.textContent = 'L\'adresse email doit être valide.';
-    isCorrect = false;
-  } else {
-    emailErrorMsg.textContent = '';
-    isCorrect = true;
-  }
+  validateInput(email, emailRegex, emailErrorMsg )
 });
+
+// Gestion de l'envoi du formulaire
+
+const form = document.querySelector('.cart__order__form');
+
+function validateForm() {
+  // Re-Vérification finale que les données du formulaires sont correctes
+  const isCorrect = 
+    validateInput(firstName, firstNameRegex, firstNameErrorMsg) &&
+    validateInput(lastName, lastNameRegex, lastNameErrorMsg) &&
+    validateInput(address, addressRegex, addressErrorMsg) &&
+    validateInput(city, cityRegex, cityErrorMsg) &&
+    validateInput(email, emailRegex, emailErrorMsg);
+  
+  if (!isCorrect) {
+    alert('Le formulaire contient des erreurs.');
+  }
+
+  return isCorrect;
+}
 
 // Déclaration de la fonction d'envoi du formulaire 
 form.addEventListener('submit', function(event) {
   event.preventDefault(); // Empêche le formulaire de s'envoyer de manière classique
 
-  //Re-vérification au submit que tous les champs sont correctes pour envoi du formulaire
-  if (!isCorrect) {
-    alert('Le formulaire contient des erreurs.');
+  // Re-Vérification finale que les données du formulaires sont correctes
+  const isFormCorrect = validateForm();
+
+  if (!isFormCorrect) {
     return;
   }
-
+  
   // Regroupement des champs de formulaire validés, pour envoi des données
   const contact = {
     firstName,
@@ -335,4 +331,6 @@ form.addEventListener('submit', function(event) {
       console.log(error);
       alert("Une erreur est survenue lors de la requête");
     });
-});
+  }
+);
+
