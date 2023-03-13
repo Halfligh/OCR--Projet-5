@@ -7,6 +7,7 @@ if (cart.length === 0) {
   const emptyCartMsg = document.createElement('p');
   emptyCartMsg.textContent = 'Votre panier est vide';
   cartItemsSection.appendChild(emptyCartMsg);
+  document.querySelector('.cart__order').style.display = 'none';
 } else {
 
   // Pour chaque élément du panier, créer les éléments HTML correspondants
@@ -136,6 +137,7 @@ if (cart.length === 0) {
             const emptyCartMsg = document.createElement('p');
             emptyCartMsg.textContent = 'Votre panier est vide';
             cartItemsSection.appendChild(emptyCartMsg);
+            document.querySelector('.cart__order').style.display = 'none';
           }
           updateTotalPrice(cart);
         });
@@ -198,9 +200,9 @@ async function updateTotalPrice() {
 
 
 // Déclaration de la fonction qui permettra de vérifier le formulaire onBlur et onChange via les regex
-function validateInput(inputElement, regex, errorMsgElement) {
-  if (!regex.test(inputElement.value)) {
-    errorMsgElement.textContent = `Le champ doit respecter le format suivant : ${regex}`;
+function validateInput(inputElement, regex, regexUser, errorMsgElement) {
+  if (!regex.test(inputElement.value) && (inputElement.value)) {
+    errorMsgElement.textContent = `${regexUser}`;
     return false;
   } else {
     errorMsgElement.textContent = '';
@@ -225,32 +227,39 @@ const cityErrorMsg = document.getElementById('cityErrorMsg');
 const emailErrorMsg = document.getElementById('emailErrorMsg');
 
 // Expressions régulières de validation
-const firstNameRegex = /^[a-zA-Z]+$/;
-const lastNameRegex = /^[a-zA-Z]+$/;
-const addressRegex = /^[a-zA-Z0-9\s,'-]*$/;
-const cityRegex = /^[a-zA-Z\s]*$/;
+const firstNameRegex = /^[a-zA-Zà-ÿ]+$/;
+const lastNameRegex = /^[a-zA-Zà-ÿ]+$/;
+const addressRegex = /^(\d{1,3}\s)?[a-zA-Zà-ÿ\s'-]+$/;
+const cityRegex = /^[a-zA-Zà-ÿ\s]*$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Validation en temps réél des champs de formulaire - onBlur
+// Affichage Regex adapté à l'utilisateur 
+const firstNameRegexUser = 'Le prénom ne doit que contenir que des lettres.';
+const lastNameRegexUser = 'Le nom de famille ne doit contenir que des lettres.';
+const addressRegexUser = "L'adresse ne doit contenir que des lettres, des chiffres, des espaces, des apostrophes, des tirets et un éventuel numéro de rue (1 à 3 chiffres suivi d'un espace).";
+const cityRegexUser = "La ville ne doit contenir que des lettres et des espaces.";
+const emailRegexUser = "L'adresse email doit être au format valide (par exemple : john.doe@example.com).";
 
-firstName.addEventListener('blur', function() {
-  validateInput(firstName, firstNameRegex, firstNameErrorMsg);
+// Validation en temps réél des champs de formulaire - onInput
+
+firstName.addEventListener('input', function() {
+  validateInput(firstName, firstNameRegex, firstNameRegexUser, firstNameErrorMsg);
 });
 
-lastName.addEventListener('blur', function() {
-  validateInput(lastName, lastNameRegex, lastNameErrorMsg)
+lastName.addEventListener('input', function() {
+  validateInput(lastName, lastNameRegex, lastNameRegexUser, lastNameErrorMsg)
 });
 
-address.addEventListener('blur', function() {
-  validateInput(address, addressRegex, addressErrorMsg )
+address.addEventListener('input', function() {
+  validateInput(address, addressRegex, addressRegexUser, addressErrorMsg)
 });
 
-city.addEventListener('blur', function() {
-  validateInput(city, cityRegex, cityErrorMsg )
+city.addEventListener('input', function() {
+  validateInput(city, cityRegex, cityRegexUser, cityErrorMsg)
 });
 
-email.addEventListener('blur', function() {
-  validateInput(email, emailRegex, emailErrorMsg )
+email.addEventListener('input', function() {
+  validateInput(email, emailRegex, emailRegexUser, emailErrorMsg)
 });
 
 // Gestion de l'envoi du formulaire
@@ -258,16 +267,29 @@ email.addEventListener('blur', function() {
 const form = document.querySelector('.cart__order__form');
 
 function validateForm() {
+
+   // Vérification que tous les champs ont une valeur
+   if (firstName.value.trim() === '' ||
+        lastName.value.trim() === '' ||
+        address.value.trim() === '' ||
+        city.value.trim() === '' ||
+        email.value.trim() === '') {
+    alert('Veuillez remplir tous les champs.');
+    return false;
+}
+
+
   // Re-Vérification finale que les données du formulaires sont correctes
   const isCorrect = 
-    validateInput(firstName, firstNameRegex, firstNameErrorMsg) &&
-    validateInput(lastName, lastNameRegex, lastNameErrorMsg) &&
-    validateInput(address, addressRegex, addressErrorMsg) &&
-    validateInput(city, cityRegex, cityErrorMsg) &&
-    validateInput(email, emailRegex, emailErrorMsg);
+    validateInput(firstName, firstNameRegex, firstNameErrorMsg, firstNameRegexUser) &&
+    validateInput(lastName, lastNameRegex, lastNameErrorMsg, lastNameRegexUser) &&
+    validateInput(address, addressRegex, addressErrorMsg, addressRegexUser) &&
+    validateInput(city, cityRegex, cityErrorMsg, cityRegexUser) &&
+    validateInput(email, emailRegex, emailErrorMsg, emailRegexUser);
   
   if (!isCorrect) {
     alert('Le formulaire contient des erreurs.');
+    return false;
   }
 
   return isCorrect;
@@ -296,21 +318,8 @@ form.addEventListener('submit', function(event) {
   //Liste des produits du panier
   const products = JSON.parse(localStorage.getItem('cart')).map(item => item.id);
 
-  //Vérification que la liste des produtis n'est pas vide avant de passer commande 
-  if (products.length === 0) {
-    alert("Votre panier est vide. Veuillez ajouter des produits avant de passer commande.");
-    return;
-  }
-
   // Regroupement des données à envoyer
   const data = JSON.stringify({ contact, products });
-
-   //Vérification que le panier n'est pas vide pour envoi du formulaire 
-   if (cart.length === 0) {
-    alert('Veuillez ajouter des articles au panier pour passer commande');
-    return;
-  }
-
 
   // Définition des options de la requête
   const options = {
@@ -321,11 +330,12 @@ form.addEventListener('submit', function(event) {
     body: data
   };
 
-  // Envoi de la requête
+  // Envoi de la requête & suppression des clés/valeurs du local storage si réussite de la requête
   fetch('http://localhost:3000/api/products/order', options)
     .then(response => response.json())
     .then(data => {
       window.location.replace(`confirmation.html?id=${data.orderId}`);
+      localStorage.clear();
     })
     .catch(error => {
       console.log(error);
