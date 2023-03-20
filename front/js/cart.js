@@ -334,8 +334,8 @@ form.addEventListener('submit', function(event) {
   fetch('http://localhost:3000/api/products/order', options)
     .then(response => response.json())
     .then(data => {
-      window.location.replace(`confirmation.html?id=${data.orderId}`);
       localStorage.clear();
+      window.location.replace(`confirmation.html?id=${data.orderId}`);
     })
     .catch(error => {
       console.log(error);
