@@ -7,7 +7,11 @@ if (cart.length === 0) {
   const emptyCartMsg = document.createElement('p');
   emptyCartMsg.textContent = 'Votre panier est vide';
   cartItemsSection.appendChild(emptyCartMsg);
-  document.querySelector('.cart__order').style.display = 'none';
+  
+  const orderForm = document.querySelector('.cart__order');
+  if (orderForm) {
+    orderForm.remove();
+  }
 } else {
 
   // Pour chaque élément du panier, créer les éléments HTML correspondants
