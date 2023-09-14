@@ -5,7 +5,7 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
 // Récupération de la valeur de l'ID de commande depuis les paramètres de l'URL
-const orderId = urlParams.get('id');
+const orderId = urlParams.get("id");
 
 // Affichage de l'ID de commande dans la page de confirmation
-document.getElementById('orderId').textContent = orderId;
+document.getElementById("orderId").textContent = orderId;
