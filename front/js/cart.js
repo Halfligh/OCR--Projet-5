@@ -200,14 +200,18 @@ async function updateTotalPrice() {
     const response = await fetch(
       `http://localhost:3000/api/products/${item.id}`
     );
+    //Ajout d'une vérification si null retourne 0 - Correction n°2
     const product = await response.json();
-    totalPrice += parseFloat(product.price) * parseInt(item.quantity);
+    totalPrice +=
+      item.quantity === null
+        ? 0
+        : parseFloat(product.price) * parseInt(item.quantity);
   }
 
-  const totalQuantity = cart.reduce(
-    (acc, item) => acc + parseInt(item.quantity),
-    0
-  );
+  //Ajout d'une vérification si null retourne 0 - Correction n°2
+  const totalQuantity = cart.reduce((acc, item) => {
+    return acc + (item.quantity === null ? 0 : parseInt(item.quantity));
+  }, 0);
   totalQuantityElement.textContent = totalQuantity;
   totalPriceElement.textContent = totalPrice.toFixed(2);
 }
