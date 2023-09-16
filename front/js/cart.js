@@ -337,7 +337,7 @@ function validateForm() {
 form.addEventListener("submit", function (event) {
   event.preventDefault(); // Empêche le formulaire de s'envoyer de manière classique
 
-  // Vérifier si il y'a des articles qui ont une quantité null
+  // Vérifier si il y'a des articles qui ont une quantité null - Correction n°2
   let itemWithZeroQuantity =
     cart && cart.find((item) => item.quantity === null);
 
