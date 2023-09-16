@@ -246,22 +246,24 @@ const addressErrorMsg = document.getElementById("addressErrorMsg");
 const cityErrorMsg = document.getElementById("cityErrorMsg");
 const emailErrorMsg = document.getElementById("emailErrorMsg");
 
-// Expressions régulières de validation
-const firstNameRegex = /^[a-zA-Zà-ÿ]+$/;
-const lastNameRegex = /^[a-zA-Zà-ÿ]+$/;
-const addressRegex = /^(\d{1,3}\s)?[a-zA-Zà-ÿ\s'-]+$/; //Numéro de rue capturé ici 1 à 3 chiffre suivi d'un espace
-const cityRegex = /^[a-zA-Zà-ÿ\s]*$/;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // début ni espace blanc ni arobase + arobase séparant la chaîne en deux parties + chaque partie contient au moins un caractère et pas d'espace + un point dans la deuxième partie
+// Expressions régulières de validation - Correction n°3
+const firstNameRegex = /^[a-zA-Zà-ÿ\s'-]+$/; // Lettres (accentuées ou non), espaces, tirets, apostrophes
+const lastNameRegex = /^[a-zA-Zà-ÿ\s'-]+$/; // Lettres (accentuées ou non), espaces, tirets, apostrophes
+const addressRegex = /^[a-zA-Zà-ÿ0-9\s,'-]+$/; // Lettres (accentuées ou non), chiffres, espaces, virgules, tirets, apostrophes
+const cityRegex = /^[a-zA-Zà-ÿ\s'-]+$/; // Lettres (accentuées ou non), espaces, tirets, apostrophes
+const emailRegex = /^[^\s@]{2,}@[^\s@.]{2,}\.[^\s@]{2,6}$/; // Au moins 2 caractères avant et après '@', 2 à 6 caractères après '.'
 
 // Affichage Regex adapté à l'utilisateur
-const firstNameRegexUser = "Le prénom ne doit que contenir que des lettres.";
-const lastNameRegexUser = "Le nom de famille ne doit contenir que des lettres.";
+const firstNameRegexUser =
+  "Le prénom ne doit que contenir que des lettres (accentuées ou non), espaces, tirets, apostrophes";
+const lastNameRegexUser =
+  "Le nom de famille ne doit contenir que lettres (accentuées ou non), espaces, tirets, apostrophes";
 const addressRegexUser =
-  "L'adresse ne doit contenir que des lettres, des chiffres, des espaces, des apostrophes, des tirets et un éventuel numéro de rue (1 à 3 chiffres suivi d'un espace).";
+  "L'adresse ne doit contenir que des lettres (accentuées ou non), chiffres, espaces, virgules, tirets, apostrophes";
 const cityRegexUser =
-  "La ville ne doit contenir que des lettres et des espaces.";
+  "La ville ne doit contenir que des lettres (accentuées ou non), espaces, tirets, apostrophes";
 const emailRegexUser =
-  "L'adresse email doit être au format valide (par exemple : john.doe@example.com).";
+  "L'adresse email doit être dans le format suivant - au moins 2 caractères avant et après '@', 2 à 6 caractères après '.'.";
 
 // Validation en temps réél des champs de formulaire - onInput
 
