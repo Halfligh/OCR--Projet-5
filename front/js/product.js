@@ -68,13 +68,19 @@ function addToCart() {
     if (cart[i].id === productId && cart[i].color === selectedColor) {
       // Vérifiez si la quantité totale dépasse 100 - Correction numéro 1
       if (parseInt(cart[i].quantity) + selectedQuantity > 100) {
-        alert(
-          `Vous avez déjà ${
-            cart[i].quantity
-          } exemplaires de cet article dans cette couleur dans votre panier, vous ne pouvez en ajouter que ${
-            100 - cart[i].quantity
-          } pour cet article avec cette couleur.`
-        );
+        if (parseInt(cart[i].quantity) === 100) {
+          alert(
+            "Votre panier compte déjà 100 articles identiques dans cette couleur. Cela est la quantité maximale autorisée par commande."
+          );
+        } else {
+          alert(
+            `Vous avez déjà ${
+              cart[i].quantity
+            } exemplaires de cet article de même couleur dans votre panier, vous ne pouvez en rajouter que ${
+              100 - cart[i].quantity
+            } pour cet article avec cette couleur.`
+          );
+        }
         return;
       }
       cart[i].quantity = parseInt(cart[i].quantity) + selectedQuantity;
