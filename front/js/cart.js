@@ -176,15 +176,18 @@ async function getTotalPrice(cart) {
     );
     const product = await response.json();
 
-    // Ajout du prix du produit au prix total, en tenant compte de sa quantité
-    totalPrice += parseFloat(product.price) * parseInt(item.quantity);
+    // Ajout du prix du produit au prix total, en tenant compte de sa quantité + Validation : Correction n°2
+    totalPrice +=
+      item.quantity === null
+        ? 0
+        : parseFloat(product.price) * parseInt(item.quantity);
   }
+  // Ajout des quantités + Validation : Correction n°2
+  const totalQuantity = cart.reduce((acc, item) => {
+    return acc + (item.quantity === null ? 0 : parseInt(item.quantity));
+  }, 0);
 
   // Mise à jour des spans avec les valeurs calculées
-  const totalQuantity = cart.reduce(
-    (acc, item) => acc + parseInt(item.quantity),
-    0
-  );
   totalQuantityElement.textContent = totalQuantity;
   totalPriceElement.textContent = totalPrice.toFixed(2);
 }
